@@ -1,0 +1,7 @@
+rumps==0.4.0
+PyYAML>=6.0
+pydantic>=2.0
+pyobjc-framework-Quartz>=10.0
+pyobjc-framework-ApplicationServices>=10.0
+pyobjc-framework-Vision>=10.0
+pyobjc-framework-ServiceManagement>=10.0

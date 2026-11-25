@@ -1,0 +1,174 @@
+# Configuración de Escudero 🛡 — edítame y luego menú → «Recargar configuración».
+# Vive en ~/Library/Application Support/Escudero/config.yaml (menú → Ordenar →
+# «Editar reglas…» la abre). Esta es la de ejemplo: la primera vez se copia ahí.
+
+barra:
+  mostrar_tiempo: true          # muestra el tiempo de hoy junto al escudo (🛡 4:32)
+  mostrar_foco: true            # muestra tu Foco del día junto al escudo
+
+# ─── 📋 PERGAMINO — el "Maccy"/"Paste" (+ 📸 Leer texto, el "TextSniper") ───
+# Historial de portapapeles con buscador (⌃⌥V desde cualquier app) que no
+# guarda lo que copian los gestores de contraseñas.
+# Leer texto: ⌃⌥T, eliges una zona de la pantalla y su texto queda copiado
+# (necesita el permiso «Grabación de pantalla»). También desde el menú: la
+# imagen copiada o un archivo (imagen o PDF). Reconoce con Vision de Apple en
+# local; motor_ocr: "unlimited" usa el servidor Unlimited-OCR (127.0.0.1:10000)
+# y, si no responde, vuelve a Vision.
+pergamino:
+  maximo: 25            # recortes que recuerda; al pasar de aquí se borra solo el más antiguo
+  persistente: true     # guardarlos en datos/pergamino.json (solo tú puedes leerlo);
+                        # false = solo en memoria, y borra ese archivo
+  atajo: "ctrl+opt+v"   # abre el buscador desde cualquier app (⌃⌥V)
+  atajo_ocr: "ctrl+opt+t"  # leer el texto de una zona de la pantalla (⌃⌥T)
+  pegar_directo: true   # ⏎ en el buscador pega en tu app (necesita Accesibilidad)
+  motor_ocr: "vision"   # "vision" (Apple Vision) o "unlimited" (Unlimited-OCR Baidu)
+
+# ─── 🪟 VENTANAS — el "Rectangle" ───────────────────────────────────────────
+# Encaja la ventana frontal en la pantalla donde esté el puntero.
+# Atajos globales: ⌃⌥← → ↑ ↓ (mitades) · ⌃⌥⏎ (maximizar) · ⌃⌥C (centrar).
+# Permisos: Accesibilidad + Automatización→System Events (diálogo al 1er uso);
+# los atajos necesitan además Monitorización de Entrada.
+ventanas:
+  atajos: true
+
+# ─── ⚔️ SÉQUITO — un botón lo arranca todo ──────────────────────────────────
+# Apps compañeras que Escudero levanta al arrancar y controla desde su menú.
+# Rutas relativas a `carpeta`. `patron` es lo que busca pgrep para saber si vive.
+sequito: []
+# Ejemplo de compañera (mismo formato para cualquier app):
+#  - nombre: "VozLocal 🎙"
+#    carpeta: ~/Applications
+#    # lanzar el BUNDLE, no venv/bin/python: si no, los permisos TCC (micrófono…) no valen
+#    comando: [VozLocal.app/Contents/MacOS/VozLocal]
+#    patron: vozlocal.py
+#    autoarrancar: true
+
+# ─── 🧹 CORTINA — el "Bartender/Ice" ────────────────────────────────────────
+# Esconde los iconos de la barra que estén a la IZQUIERDA del separador ❘
+# (colócalos una vez con ⌘-arrastrar). La flecha ‹/› los esconde y asoma;
+# si los asomas, se vuelven a esconder solos a los N segundos.
+cortina:
+  activada: true
+  auto_ocultar_seg: 15
+
+# ─── 🗂 ORDENAR — el "Hazel" ────────────────────────────────────────────────
+# Cómo decide (menú → Ordenar → «Probar las reglas…» enseña qué haría y por qué):
+#   · Solo mira los archivos SUELTOS de cada carpeta; las subcarpetas no se tocan.
+#   · Las reglas se miran EN ORDEN y gana la PRIMERA que casa.
+#   · En `si` se tienen que cumplir TODAS las condiciones; en una lista basta UNA.
+#   · `excepto` descarta la regla si se cumple CUALQUIERA de sus condiciones.
+# Condiciones (en `si` o en `excepto`):
+#   tipo: [imagen, video, audio, pdf, documento, comprimido, instalador, codigo, fuente]
+#   ext: [png, pdf]          extensiones (sin punto; da igual mayúsculas)
+#   nombre: ["captura de pantalla"]   el nombre CONTIENE esto (sin tildes ni mayúsculas)
+#   origen: [ejemplo.es]       descargado de esa web o sus subdominios (el «De dónde» del Finder)
+#   edad_dias: 7             lleva N días EN LA CARPETA (desde que llegó, no desde
+#                            que se modificó: un zip viejo recién descomprimido es nuevo)
+#   sin_tocar_dias: 45       N días sin llegar, abrirse ni modificarse
+#   mayor_mb: 500 / menor_mb: 1      tamaño
+#   patron: "captura*"  regex: "^IMG_\d+"   para nombres con forma fija
+#   contenido_regex: "factura"   mira DENTRO (texto, o reconocimiento en imágenes y
+#                            PDF). Lento: úsalo en carpetas pequeñas.
+# Acciones en `hacer`:  {mover: ruta}  o  {papelera: true}
+#   La ruta admite {año}, {mes} y {dia} de llegada:  ~/Downloads/Capturas/{año}-{mes}
+# Seguridad: nunca sobrescribe (añade « 2»), no toca descargas a medias ni lo que
+# llegó o se modificó hace menos de `edad_minima_seg`, y la última pasada se deshace
+# desde el menú. Historial en datos/ordenar.db («Últimos movimientos» en el menú).
+ordenar:
+  activado: false               # APAGADO de serie: revisa las reglas, mira «Probar las
+                                # reglas…» en el menú y actívalo desde ahí cuando quieras
+  intervalo_seg: 60
+  edad_minima_seg: 120
+  avisar: true                  # notificación cuando mueve algo
+  carpetas:
+    - ruta: ~/Downloads
+      reglas:
+        # - nombre: Universidad          # todo lo que bajes de la web de tu uni
+        #   si: {origen: [miuniversidad.edu]}
+        #   hacer: {mover: ~/Downloads/Universidad}
+        - nombre: Capturas
+          si: {nombre: ["captura de pantalla", "screenshot"], tipo: imagen}
+          hacer: {mover: ~/Downloads/Capturas}
+        - nombre: Instaladores
+          si: {tipo: instalador}
+          hacer: {mover: ~/Downloads/Instaladores}
+        - nombre: Imágenes
+          si: {tipo: imagen}
+          hacer: {mover: ~/Downloads/Imágenes}
+        - nombre: Vídeos
+          si: {tipo: video}
+          hacer: {mover: ~/Downloads/Vídeos}
+        - nombre: PDFs
+          si: {tipo: pdf}
+          hacer: {mover: ~/Downloads/PDFs}
+        - nombre: Documentos
+          si: {tipo: documento}           # Word, Excel, CSV, PowerPoint, Pages, texto…
+          hacer: {mover: ~/Downloads/Documentos}
+        - nombre: Comprimidos (tras 7 días)
+          si: {tipo: comprimido, edad_dias: 7}
+          hacer: {mover: ~/Downloads/Comprimidos}
+        - nombre: Al desván (45 días sin tocar)
+          si: {sin_tocar_dias: 45}
+          hacer: {mover: ~/Downloads/_Desván}
+    # Más carpetas, mismo formato:
+    # - ruta: ~/Desktop
+    #   reglas:
+    #     - nombre: Capturas del escritorio
+    #       si: {nombre: "captura de pantalla", tipo: imagen}
+    #       hacer: {mover: ~/Downloads/Capturas/{año}-{mes}}
+
+# ─── 👁 VIGÍA — el "FavTray" ────────────────────────────────────────────────
+vigia:
+  ojos:
+    activado: true
+    intervalo_min: 20
+    sonido: Glass               # sonido de macOS; borra la línea para silencio
+
+# ─── 📖 CRÓNICA — el "Rize" (el «Hoy» del menú) ────────────────────────────
+# Orden: tus reglas por TÍTULO de ventana (Brave con «Disney+» → Ocio), luego por
+# nombre de APP; un navegador sin pista va a «Navegación»; si nada casa, lo que la
+# propia app dice ser (juego → Ocio, herramienta de desarrollo → Código, red social
+# → Comunicación…), y solo al final «Otros». Al cambiar estas reglas y recargar,
+# el historial se reclasifica solo. Sin permiso de Accesibilidad no hay títulos.
+cronica:
+  intervalo_seg: 5
+  idle_seg: 180                 # tras 3 min sin teclado/ratón deja de contar
+  categorias:
+    Estudio:
+      apps: [GoodNotes, Notability, Anki]
+      titulos: [campus virtual, moodle, khan academy, coursera]
+    Negocio:
+      titulos: [shopify, stripe, ads manager, business suite]
+    Código:
+      apps: [Visual Studio Code, Code, Cursor, Terminal, iTerm, Ghostty, Warp, Xcode,
+             Simulator, Simulador, Docker]
+      titulos: [github, supabase, localhost, expo, metro, sentry, claude code,
+                stack overflow, vercel]
+    Diseño:
+      apps: [Aseprite, Figma, Pixelmator, Sketch, CapCut, Affinity]
+      titulos: [canva, figma]
+    IA:
+      apps: [Claude, ChatGPT, Gemini]
+      titulos: [claude.ai, chatgpt, gemini, perplexity, grok]
+    Comunicación:
+      apps: [Mail, Mimestream, WhatsApp, Telegram, Discord, FaceTime, Mensajes, Zoom]
+      titulos: [gmail, outlook, whatsapp web]
+    Docs:
+      apps: [Notas, Notes, Obsidian, Notion, Vista Previa, Preview, Pages, Numbers, Keynote,
+             Microsoft Word, Microsoft Excel, Microsoft PowerPoint, Calendario,
+             Recordatorios]
+      titulos: [google docs, google sheets, docs.google]
+    Ocio:
+      apps: [Steam, Epic Games Launcher, Riot Client, Cliente de Riot, League of Legends,
+             Minecraft, Música, Music, Spotify, QuickTime Player, IINA, VLC]
+      titulos: [youtube, netflix, twitch, hbo, prime video, disney+, crunchyroll, reddit,
+                twitter, x.com, instagram, tiktok]
+# ─── 🌐 API LOCAL — el contrato de sinergia del ecosistema ──────────────────
+# Escudero escucha en 127.0.0.1 (nunca en la red) para que VozLocal y ForgeDesk
+# le pregunten estado y le manden órdenes. Token Bearer en
+# ~/.config/escudero/api.token (chmod 600, se genera solo la primera vez).
+# Endpoints y ejemplos: docs/API.md · Puntos de contacto: docs/INTEGRACION.md
+api:
+  activada: true
+  puerto: 8764                # ForgeDesk usa 8763; VozLocal, 8765
+  # token: ""                 # vacío = se genera solo en ~/.config/escudero/api.token

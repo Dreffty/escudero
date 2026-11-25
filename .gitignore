@@ -1,0 +1,12 @@
+venv/
+datos/
+__pycache__/
+*.pyc
+build/
+dist/
+.DS_Store
+# Tu config personal: vive en ~/Library/Application Support/Escudero/config.yaml.
+# En el repo solo va config.ejemplo.yaml.
+config.yaml
+.gentlemerge/
+.claude/
